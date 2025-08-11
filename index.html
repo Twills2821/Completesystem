@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Abundantly Business Management System</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { 
+          Users, DollarSign, Calendar, FileText, Building, 
+          Phone, Mail, MapPin, Clock, Download, Plus, 
+          Edit, Trash2, Save, X, ChevronLeft, ChevronRight,
+          TrendingUp, UserCheck, CreditCard, AlertCircle
+        } = lucide;
+
+        function LifeAbundantlySystem() {
+          const [currentView, setCurrentView] = useState('dashboard');
+
+          // Client billing state
+          const [clients, setClients] = useState([
+            { id: 1, name: 'Michael Johnson', insurance: 'Blue Cross Blue Shield', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 123-4567', email: 'mjohnson@email.com' },
+            { id: 2, name: 'Sarah Williams', insurance: 'Aetna', status: 'Active', services: ['SACOT'], phone: '(555) 234-5678', email: 'swilliams@email.com' },
+            { id: 3, name: 'David Brown', insurance: 'UnitedHealthcare', status: 'Active', services: ['SAIOP'], phone: '(555) 345-6789', email: 'dbrown@email.com' },
+            { id: 4, name: 'Lisa Davis', insurance: 'Medicaid', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 456-7890', email: 'ldavis@email.com' },
+            { id: 5, name: 'Robert Wilson', insurance: 'Cigna', status: 'Active', services: ['SACOT'], phone: '(555) 567-8901', email: 'rwilson@email.com' },
+            { id: 6, name: 'Jennifer Garcia', insurance: 'Blue Cross Blue Shield', status: 'Active', services: ['SAIOP'], phone: '(555) 678-9012', email: 'jgarcia@email.com' },
+            { id: 7, name: 'Christopher Martinez', insurance: 'Aetna', status: 'Active', services: ['SACOT'], phone: '(555) 789-0123', email: 'cmartinez@email.com' },
+            { id: 8, name: 'Amanda Anderson', insurance: 'UnitedHealthcare', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 890-1234', email: 'aanderson@email.com' },
+            { id: 9, name: 'James Taylor', insurance: 'Medicaid', status: 'Active', services: ['SAIOP'], phone: '(555) 901-2345', email: 'jtaylor@email.com' },
+            { id: 10, name: 'Michelle Thomas', insurance: 'Cigna', status: 'Active', services: ['SACOT'], phone: '(555) 012-3456', email: 'mthomas@email.com' },
+            { id: 11, name: 'Daniel Jackson', insurance: 'Blue Cross Blue Shield', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 123-4567', email: 'djackson@email.com' },
+            { id: 12, name: 'Stephanie White', insurance: 'Aetna', status: 'Active', services: ['SAIOP'], phone: '(555) 234-5678', email: 'swhite@email.com' },
+            { id: 13, name: 'Kevin Harris', insurance: 'UnitedHealthcare', status: 'Active', services: ['SACOT'], phone: '(555) 345-6789', email: 'kharris@email.com' },
+            { id: 14, name: 'Nicole Clark', insurance: 'Medicaid', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 456-7890', email: 'nclark@email.com' },
+            { id: 15, name: 'Ryan Lewis', insurance: 'Cigna', status: 'Active', services: ['SAIOP'], phone: '(555) 567-8901', email: 'rlewis@email.com' },
+            { id: 16, name: 'Heather Robinson', insurance: 'Blue Cross Blue Shield', status: 'Active', services: ['SACOT'], phone: '(555) 678-9012', email: 'hrobinson@email.com' },
+            { id: 17, name: 'Justin Walker', insurance: 'Aetna', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 789-0123', email: 'jwalker@email.com' },
+            { id: 18, name: 'Megan Hall', insurance: 'UnitedHealthcare', status: 'Active', services: ['SAIOP'], phone: '(555) 890-1234', email: 'mhall@email.com' },
+            { id: 19, name: 'Brandon Allen', insurance: 'Medicaid', status: 'Active', services: ['SACOT'], phone: '(555) 901-2345', email: 'ballen@email.com' },
+            { id: 20, name: 'Kimberly Young', insurance: 'Cigna', status: 'Active', services: ['SACOT', 'SAIOP'], phone: '(555) 012-3456', email: 'kyoung@email.com' }
+          ]);
+
+          const [weeklyData, setWeeklyData] = useState({});
+          const [selectedWeek, setSelectedWeek] = useState(() => {
+            const now = new Date();
+            const monday = new Date(now.setDate(now.getDate() - now.getDay() + 1));
+            return monday.toISOString().split('T')[0];
+          });
+
+          // Auto-save to localStorage
+          useEffect(() => {
+            localStorage.setItem('lifeAbundantly_clients', JSON.stringify(clients));
+          }, [clients]);
+
+          useEffect(() => {
+            localStorage.setItem('lifeAbundantly_weeklyData', JSON.stringify(weeklyData));
+          }, [weeklyData]);
+
+          // Auto-load from localStorage
+          useEffect(() => {
+            const savedClients = localStorage.getItem('lifeAbundantly_clients');
+            if (savedClients) {
+              try {
+                setClients(JSON.parse(savedClients));
+              } catch (error) {
+                console.log('Error loading clients:', error);
+              }
+            }
+
+            const savedWeeklyData = localStorage.getItem('lifeAbundantly_weeklyData');
+            if (savedWeeklyData) {
+              try {
+                setWeeklyData(JSON.parse(savedWeeklyData));
+              } catch (error) {
+                console.log('Error loading weekly data:', error);
+              }
+            }
+          }, []);
+
+          // Payroll state
+          const [payrollTab, setPayrollTab] = useState('services'); // 'services' or 'fixed'
+          const [employees, setEmployees] = useState([
+            { id: 1, name: 'Tamika Brunson', role: 'Owner/Administrator', department: 'Leadership', services: ['manual'] },
+            { id: 2, name: 'Emily Burnette', role: 'HR Director', department: 'Leadership', services: ['manual'] },
+            { id: 3, name: 'Holly Jones', role: 'Clinical Director', department: 'Leadership', services: ['manual'] },
+            { id: 4, name: 'Alycia Flynn', role: 'LCAS', department: 'Clinical', services: ['cca'] },
+            { id: 5, name: 'Rashawn Kent', role: 'LCAS', department: 'Clinical', services: ['cca'] },
+            { id: 6, name: 'Charlene Powell', role: 'LCAS', department: 'Clinical', services: ['cca'] },
+            { id: 7, name: 'Bernice Motley', role: 'Qualified Professional', department: 'Clinical', services: ['pcp', 'updatedPcp'] },
+            { id: 8, name: 'Jessica Eubanks', role: 'Dual Role QP', department: 'Clinical', services: ['cca', 'pcp', 'updatedPcp', 'notes'] },
+            { id: 9, name: 'Shena McCrosky', role: 'Dual Role QP', department: 'Clinical', services: ['cca', 'pcp', 'updatedPcp', 'notes'] },
+            { id: 10, name: 'Keyla Thomas', role: 'Medical Records Coordinator', department: 'Support', services: ['manual'] },
+            { id: 11, name: 'Brandon Jones', role: 'Client Care Coordinator', department: 'Support', services: ['manual'] },
+            { id: 12, name: 'Sherry Williams', role: 'Outreach Coordinator', department: 'Support', services: ['manual'] },
+            { id: 13, name: 'Rae Harris', role: 'Community Resources Coordinator', department: 'Support', services: ['manual'] },
+            { id: 14, name: 'Gianna Johnson', role: 'Referral Coordinator', department: 'Support', services: ['manual'] },
+            { id: 15, name: 'Kamila Woodruff', role: 'Billing Specialist/Note Reviewer', department: 'Support', services: ['manual'] },
+            { id: 16, name: 'Betty Wilkins', role: 'Peer Support Specialist', department: 'Peer Support', services: ['notes'] },
+            { id: 17, name: 'Deshonda Simmons', role: 'Peer Support Specialist', department: 'Peer Support', services: ['notes'] },
+            { id: 18, name: 'Taylor McClean', role: 'Peer Support Specialist', department: 'Peer Support', services: ['notes'] },
+            { id: 19, name: 'David Logans', role: 'Peer Support Specialist', department: 'Peer Support', services: ['notes'] },
+            { id: 20, name: 'Manaji Keel', role: 'Peer Support Specialist', department: 'Peer Support', services: ['notes'] },
+            { id: 21, name: 'Cory Darden', role: 'Peer Support Specialist', department: 'Peer Support', services: ['notes'] }
+          ]);
+          
+          const [payrollData, setPayrollData] = useState({});
+          const [weeklyNotes, setWeeklyNotes] = useState({});
+          const [fixedPay, setFixedPay] = useState({});
+          
+          // Auto-save payroll data to localStorage
+          useEffect(() => {
+            const dataToSave = {
+              payrollData,
+              weeklyNotes,
+              fixedPay
+            };
+            localStorage.setItem('lifeAbundantly_payrollData', JSON.stringify(dataToSave));
+          }, [payrollData, weeklyNotes, fixedPay]);
+          
+          // Auto-load payroll data from localStorage
+          useEffect(() => {
+            const saved = localStorage.getItem('lifeAbundantly_payrollData');
+            if (saved) {
+              try {
+                const parsed = JSON.parse(saved);
+                if (parsed.payrollData) setPayrollData(parsed.payrollData);
+                if (parsed.weeklyNotes) setWeeklyNotes(parsed.weeklyNotes);
+                if (parsed.fixedPay) setFixedPay(parsed.fixedPay);
+              } catch (error) {
+                console.log('Error loading payroll data:', error);
+              }
+            }
+          }, []);
+          
+          const [payrollWeek, setPayrollWeek] = useState(() => {
+            const now = new Date();
+            const monday = new Date(now.setDate(now.getDate() - now.getDay() + 1));
+            return monday.toISOString().split('T')[0];
+          });
+
+          const updatePayrollData = (employeeId, service, value) => {
+            const key = `${payrollWeek}-${employeeId}`;
+            setPayrollData(prev => ({
+              ...prev,
+              [key]: {
+                ...prev[key],
+                [service]: parseInt(value) || 0
+              }
+            }));
+          };
+          
+          const updateWeeklyNote = (employeeId, note) => {
+            const key = `${payrollWeek}-${employeeId}`;
+            setWeeklyNotes(prev => ({
+              ...prev,
+              [key]: note
+            }));
+          };
+          
+          const updateFixedPay = (employeeId, amount) => {
+            const key = `${payrollWeek}-${employeeId}`;
+            setFixedPay(prev => ({
+              ...prev,
+              [key]: parseFloat(amount) || 0
+            }));
+          };
+          
+          const getPayrollData = (employeeId, service) => {
+            const key = `${payrollWeek}-${employeeId}`;
+            return payrollData[key]?.[service] || 0;
+          };
+          
+          const getWeeklyNote = (employeeId) => {
+            const key = `${payrollWeek}-${employeeId}`;
+            return weeklyNotes[key] || '';
+          };
+          
+          const getFixedPay = (employeeId) => {
+            const key = `${payrollWeek}-${employeeId}`;
+            return fixedPay[key] || 0;
+          };
+
+          const calculateEmployeeTotal = (employee) => {
+            if (payrollTab === 'fixed') {
+              return getFixedPay(employee.id);
+            }
+            
+            let total = 0;
+            if (employee.services.includes('cca')) {
+              total += getPayrollData(employee.id, 'cca') * 100;
+            }
+            if (employee.services.includes('pcp')) {
+              total += getPayrollData(employee.id, 'pcp') * 100;
+            }
+            if (employee.services.includes('updatedPcp')) {
+              total += getPayrollData(employee.id, 'updatedPcp') * 50;
+            }
+            if (employee.services.includes('notes')) {
+              total += getPayrollData(employee.id, 'notes') * 50;
+            }
+            if (employee.services.includes('manual')) {
+              total += getPayrollData(employee.id, 'manual');
+            }
+            return total;
+          };
+
+          const getDepartmentColor = (department) => {
+            const colors = {
+              'Leadership': 'bg-purple-50',
+              'Clinical': 'bg-blue-50',
+              'Support': 'bg-green-50',
+              'Peer Support': 'bg-yellow-50'
+            };
+            return colors[department] || 'bg-gray-50';
+          };
+
+          const exportPayrollData = () => {
+            const csvData = employees.map(employee => {
+              const weekData = payrollTab === 'services' ? {
+                CCA: employee.services.includes('cca') ? getPayrollData(employee.id, 'cca') : 0,
+                PCP: employee.services.includes('pcp') ? getPayrollData(employee.id, 'pcp') : 0,
+                'Updated PCP': employee.services.includes('updatedPcp') ? getPayrollData(employee.id, 'updatedPcp') : 0,
+                'Client Notes': employee.services.includes('notes') ? getPayrollData(employee.id, 'notes') : 0,
+                'Manual Entry': employee.services.includes('manual') ? getPayrollData(employee.id, 'manual') : 0
+              } : {
+                'Fixed Amount': getFixedPay(employee.id)
+              };
+
+              return {
+                'Employee': employee.name,
+                'Role': employee.role,
+                'Department': employee.department,
+                'Week': payrollWeek,
+                'Notes': getWeeklyNote(employee.id),
+                ...weekData,
+                'Total': calculateEmployeeTotal(employee).toFixed(2)
+              };
+            });
+
+            const csvContent = [
+              Object.keys(csvData[0]).join(','),
+              ...csvData.map(row => Object.values(row).map(value => 
+                typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+              ).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Life_Abundantly_Payroll_${payrollWeek}_${payrollTab}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          };
+
+          // Billing functions
+          const updateWeeklyData = (clientId, service, value) => {
+            const key = `${selectedWeek}-${clientId}`;
+            setWeeklyData(prev => ({
+              ...prev,
+              [key]: {
+                ...prev[key],
+                [service]: parseInt(value) || 0
+              }
+            }));
+          };
+
+          const getWeeklyData = (clientId, service) => {
+            const key = `${selectedWeek}-${clientId}`;
+            return weeklyData[key]?.[service] || 0;
+          };
+
+          const calculateClientTotal = (client) => {
+            let total = 0;
+            if (client.services.includes('SACOT')) {
+              total += getWeeklyData(client.id, 'sacot') * 58.61;
+            }
+            if (client.services.includes('SAIOP')) {
+              total += getWeeklyData(client.id, 'saiop') * 170.03;
+            }
+            return total;
+          };
+
+          const exportBillingData = () => {
+            const csvData = clients.map(client => ({
+              'Client': client.name,
+              'Insurance': client.insurance,
+              'Status': client.status,
+              'Week': selectedWeek,
+              'SACOT Hours': client.services.includes('SACOT') ? getWeeklyData(client.id, 'sacot') : 0,
+              'SAIOP Days': client.services.includes('SAIOP') ? getWeeklyData(client.id, 'saiop') : 0,
+              'Total': calculateClientTotal(client).toFixed(2)
+            }));
+
+            const csvContent = [
+              Object.keys(csvData[0]).join(','),
+              ...csvData.map(row => Object.values(row).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Life_Abundantly_Billing_${selectedWeek}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          };
+
+          const renderDashboard = () => (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-3xl font-bold text-gray-800 mb-4">Life Abundantly Business Overview</h2>
+                <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                  <div className="flex">
+                    <div className="ml-3">
+                      <p className="text-sm text-blue-700">
+                        <strong>Business Management System:</strong> This system manages two separate but connected business functions:
+                        <br/>• <strong>Client Billing</strong> - Track services provided to clients and bill insurance companies (Revenue)
+                        <br/>• <strong>Employee Payroll</strong> - Track employee work and calculate compensation (Costs)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Client Billing Summary</h3>
+                    <DollarSign className="w-8 h-8 text-green-500" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Active Clients:</span>
+                      <span className="font-bold text-green-600">{clients.filter(c => c.status === 'Active').length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Week Revenue:</span>
+                      <span className="font-bold text-green-600">
+                        ${clients.reduce((sum, client) => sum + calculateClientTotal(client), 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">SACOT Rate:</span>
+                      <span className="text-gray-800">$58.61/hour</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">SAIOP Rate:</span>
+                      <span className="text-gray-800">$170.03/day</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setCurrentView('billing')}
+                    className="w-full mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    Manage Client Billing
+                  </button>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Employee Payroll Summary</h3>
+                    <Users className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Employees:</span>
+                      <span className="font-bold text-blue-600">{employees.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Week Payroll:</span>
+                      <span className="font-bold text-blue-600">
+                        ${employees.reduce((sum, emp) => sum + calculateEmployeeTotal(emp), 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Pay Method:</span>
+                      <span className="text-gray-800">{payrollTab === 'services' ? 'Service-Based' : 'Fixed Amount'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Departments:</span>
+                      <span className="text-gray-800">4 (Leadership, Clinical, Support, Peer)</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setCurrentView('payroll')}
+                    className="w-full mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Manage Employee Payroll
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <button
+                    onClick={() => setCurrentView('billing')}
+                    className="bg-green-100 text-green-700 px-4 py-3 rounded-lg hover:bg-green-200 transition-colors flex items-center justify-center"
+                  >
+                    <FileText className="w-5 h-5 mr-2" />
+                    Weekly Billing
+                  </button>
+                  <button
+                    onClick={() => setCurrentView('payroll')}
+                    className="bg-blue-100 text-blue-700 px-4 py-3 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center"
+                  >
+                    <Users className="w-5 h-5 mr-2" />
+                    Payroll Entry
+                  </button>
+                  <button
+                    onClick={exportBillingData}
+                    className="bg-purple-100 text-purple-700 px-4 py-3 rounded-lg hover:bg-purple-200 transition-colors flex items-center justify-center"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Export Billing
+                  </button>
+                  <button
+                    onClick={exportPayrollData}
+                    className="bg-orange-100 text-orange-700 px-4 py-3 rounded-lg hover:bg-orange-200 transition-colors flex items-center justify-center"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Export Payroll
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+
+          const renderClientBilling = () => (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">Client Billing System</h2>
+                  <button
+                    onClick={exportBillingData}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Data
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="text-blue-600 text-sm font-medium">Active Clients</div>
+                    <div className="text-2xl font-bold text-blue-700">{clients.filter(c => c.status === 'Active').length}</div>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="text-green-600 text-sm font-medium">Week Revenue</div>
+                    <div className="text-2xl font-bold text-green-700">
+                      ${clients.reduce((sum, client) => sum + calculateClientTotal(client), 0).toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <div className="text-orange-600 text-sm font-medium">Selected Week</div>
+                    <div className="text-lg font-bold text-orange-700">{selectedWeek}</div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => {
+                        const newDate = new Date(selectedWeek);
+                        newDate.setDate(newDate.getDate() - 7);
+                        setSelectedWeek(newDate.toISOString().split('T')[0]);
+                      }}
+                      className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <input
+                      type="date"
+                      value={selectedWeek}
+                      onChange={(e) => setSelectedWeek(e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => {
+                        const newDate = new Date(selectedWeek);
+                        newDate.setDate(newDate.getDate() + 7);
+                        setSelectedWeek(newDate.toISOString().split('T')[0]);
+                      }}
+                      className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-300 px-4 py-2 text-left">Client</th>
+                        <th className="border border-gray-300 px-4 py-2 text-center">SACOT Hours<br/>($58.61/hr)</th>
+                        <th className="border border-gray-300 px-4 py-2 text-center">SAIOP Days<br/>($170.03/day)</th>
+                        <th className="border border-gray-300 px-4 py-2 text-center">Week Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {clients.map((client) => (
+                        <tr key={client.id} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 px-4 py-2">
+                            <div>
+                              <div className="font-medium">{client.name}</div>
+                              <div className="text-sm text-gray-600">{client.insurance}</div>
+                            </div>
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2 text-center">
+                            {client.services.includes('SACOT') ? (
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                value={getWeeklyData(client.id, 'sacot')}
+                                onChange={(e) => updateWeeklyData(client.id, 'sacot', e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2 text-center">
+                            {client.services.includes('SAIOP') ? (
+                              <input
+                                type="number"
+                                min="0"
+                                value={getWeeklyData(client.id, 'saiop')}
+                                onChange={(e) => updateWeeklyData(client.id, 'saiop', e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2 text-center font-bold">
+                            ${calculateClientTotal(client).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-100 font-bold">
+                        <td className="border border-gray-300 px-4 py-2" colSpan="3">
+                          Total Weekly Revenue
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 text-center">
+                          ${clients.reduce((sum, client) => sum + calculateClientTotal(client), 0).toFixed(2)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
+
+          const renderEmployeePayroll = () => (
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">Employee Payroll System</h2>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setPayrollTab('services')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        payrollTab === 'services'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      Service Tracking
+                    </button>
+                    <button
+                      onClick={() => setPayrollTab('fixed')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        payrollTab === 'fixed'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      Fixed Pay
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="text-blue-600 text-sm font-medium">Total Employees</div>
+                    <div className="text-2xl font-bold text-blue-700">{employees.length}</div>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="text-green-600 text-sm font-medium">Week Total</div>
+                    <div className="text-2xl font-bold text-green-700">
+                      ${employees.reduce((sum, emp) => sum + calculateEmployeeTotal(emp), 0).toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="text-purple-600 text-sm font-medium">Pay Method</div>
+                    <div className="text-lg font-bold text-purple-700">
+                      {payrollTab === 'services' ? 'Service-Based' : 'Fixed Amount'}
+                    </div>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <div className="text-orange-600 text-sm font-medium">Current Week</div>
+                    <div className="text-lg font-bold text-orange-700">{payrollWeek}</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => {
+                        const newDate = new Date(payrollWeek);
+                        newDate.setDate(newDate.getDate() - 7);
+                        setPayrollWeek(newDate.toISOString().split('T')[0]);
+                      }}
+                      className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <input
+                      type="date"
+                      value={payrollWeek}
+                      onChange={(e) => setPayrollWeek(e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => {
+                        const newDate = new Date(payrollWeek);
+                        newDate.setDate(newDate.getDate() + 7);
+                        setPayrollWeek(newDate.toISOString().split('T')[0]);
+                      }}
+                      className="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={exportPayrollData}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Payroll
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-300 px-4 py-2 text-left">Employee</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Notes</th>
+                        {payrollTab === 'services' ? (
+                          <>
+                            <th className="border border-gray-300 px-4 py-2 text-center">CCA<br/>($100)</th>
+                            <th className="border border-gray-300 px-4 py-2 text-center">PCP<br/>($100)</th>
+                            <th className="border border-gray-300 px-4 py-2 text-center">Updated PCP<br/>($50)</th>
+                            <th className="border border-gray-300 px-4 py-2 text-center">Client Notes<br/>($50)</th>
+                            <th className="border border-gray-300 px-4 py-2 text-center">Manual Entry<br/>($)</th>
+                          </>
+                        ) : (
+                          <th className="border border-gray-300 px-4 py-2 text-center">Fixed Amount ($)</th>
+                        )}
+                        <th className="border border-gray-300 px-4 py-2 text-center">Week Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employees.map((employee) => (
+                        <tr key={employee.id} className={getDepartmentColor(employee.department)}>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <div>
+                              <div className="font-medium">{employee.name}</div>
+                              <div className="text-sm text-gray-600">{employee.role}</div>
+                            </div>
+                          </td>
+                          <td className="border border-gray-300 px-2 py-2">
+                            <input
+                              type="text"
+                              value={getWeeklyNote(employee.id)}
+                              onChange={(e) => updateWeeklyNote(employee.id, e.target.value)}
+                              placeholder="Notes for this week..."
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                          </td>
+                          {payrollTab === 'services' ? (
+                            <>
+                              <td className="border border-gray-300 px-4 py-2 text-center">
+                                {employee.services.includes('cca') ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={getPayrollData(employee.id, 'cca')}
+                                    onChange={(e) => updatePayrollData(employee.id, 'cca', e.target.value)}
+                                    className="w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2 text-center">
+                                {employee.services.includes('pcp') ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={getPayrollData(employee.id, 'pcp')}
+                                    onChange={(e) => updatePayrollData(employee.id, 'pcp', e.target.value)}
+                                    className="w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2 text-center">
+                                {employee.services.includes('updatedPcp') ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={getPayrollData(employee.id, 'updatedPcp')}
+                                    onChange={(e) => updatePayrollData(employee.id, 'updatedPcp', e.target.value)}
+                                    className="w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2 text-center">
+                                {employee.services.includes('notes') ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={getPayrollData(employee.id, 'notes')}
+                                    onChange={(e) => updatePayrollData(employee.id, 'notes', e.target.value)}
+                                    className="w-16 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2 text-center">
+                                {employee.services.includes('manual') ? (
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={getPayrollData(employee.id, 'manual')}
+                                    onChange={(e) => updatePayrollData(employee.id, 'manual', e.target.value)}
+                                    className="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                            </>
+                          ) : (
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={getFixedPay(employee.id)}
+                                onChange={(e) => updateFixedPay(employee.id, e.target.value)}
+                                className="w-24 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="0.00"
+                              />
+                            </td>
+                          )}
+                          <td className="border border-gray-300 px-4 py-2 text-center font-bold">
+                            ${calculateEmployeeTotal(employee).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-100 font-bold">
+                        <td className="border border-gray-300 px-4 py-2" colSpan={payrollTab === 'services' ? 7 : 3}>
+                          Total Weekly Payroll
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2 text-center">
+                          ${employees.reduce((sum, emp) => sum + calculateEmployeeTotal(emp), 0).toFixed(2)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
+
+          return (
+            <div className="min-h-screen bg-gray-100">
+              <nav className="bg-white shadow-md sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="flex justify-between items-center h-16">
+                    <div className="flex items-center space-x-8">
+                      <div className="flex items-center">
+                        <Building className="w-8 h-8 text-blue-600 mr-3" />
+                        <h1 className="text-xl font-bold text-gray-800">Life Abundantly</h1>
+                      </div>
+                      <div className="hidden md:flex space-x-4">
+                        <button
+                          onClick={() => setCurrentView('dashboard')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            currentView === 'dashboard'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                        >
+                          Dashboard
+                        </button>
+                        <button
+                          onClick={() => setCurrentView('billing')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            currentView === 'billing'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                        >
+                          Client Billing
+                        </button>
+                        <button
+                          onClick={() => setCurrentView('payroll')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            currentView === 'payroll'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'text-gray-600 hover:text-gray-800'
+                          }`}
+                        >
+                          Employee Payroll
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+
+              <main className="max-w-7xl mx-auto px-4 py-8">
+                {currentView === 'dashboard' && renderDashboard()}
+                {currentView === 'billing' && renderClientBilling()}
+                {currentView === 'payroll' && renderEmployeePayroll()}
+              </main>
+            </div>
+          );
+        }
+
+        ReactDOM.render(<LifeAbundantlySystem />, document.getElementById('root'));
+    </script>
+</body>
+</html>
